@@ -1,7 +1,12 @@
 package com.wangruize.tagcloud;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,20 +26,33 @@ public class MainActivity extends AppCompatActivity {
         tagLayout = findViewById(R.id.tag_layout);
 
         // 动态添加标签
-        findViewById(R.id.add_tag_button).setOnClickListener(v -> {
-            TextView tag = new TextView(this);
-            tag.setText("标签 " + (tagLayout.getChildCount() + 1));
-            tag.setPadding(16, 8, 16, 8);
-            tag.setBackgroundResource(R.drawable.tag_background); // 设置标签样式
-            tagLayout.addView(tag);
-        });
+        EditText tagText = findViewById(R.id.tag_input);
+        findViewById(R.id.add_tag_button).setOnClickListener(v -> addTag(tagText));
 
-        // 动态删除最后一个标签
-        findViewById(R.id.remove_tag_button).setOnClickListener(v -> {
-            int count = tagLayout.getChildCount();
-            if (count > 0) {
-                tagLayout.removeViewAt(count - 1);
+    }
+
+    private void addTag(TextView tagText) {
+        // 使用 LayoutInflater 加载自定义的标签布局
+        View tagView = LayoutInflater.from(this).inflate(R.layout.tag_item, tagLayout, false);
+
+        // 设置标签文本
+        TextView tagTextView = tagView.findViewById(R.id.tag_text);
+        String tag = tagText.getText().toString();
+        if (!tag.isEmpty() && tag.length() < 10) {
+            tagTextView.setText(tag);
+        }else{
+            if (tag.length() >= 10){
+                Toast.makeText(this, "标签过长，请控制在10个字以内", Toast.LENGTH_SHORT).show();
             }
-        });
+            return;
+        }
+
+        // 设置删除按钮的点击事件
+        ImageView deleteButton = tagView.findViewById(R.id.delete_button);
+        deleteButton.setOnClickListener(v -> tagLayout.removeView(tagView));
+
+        // 将标签添加到 TagLayout 中
+        tagLayout.addView(tagView);
+        tagText.setText("");
     }
 }
